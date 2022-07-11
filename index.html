@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open url from HTML</title>
+    <style>
+        .line{margin: 1rem 0; border-bottom: 1px solid;}
+    </style>
+</head>
+
+<body>
+    <h1>Open url from HTML</h1>
+
+    <h4>HTML</h4>
+
+    <textarea id="input-1" style="width: 512px; height: 128px;"></textarea>
+
+    <br />
+
+    <table style="font-size: 0.8rem; margin-bottom: 4px;">
+        <tr>
+            <th>Tag name</th>
+            <th>Property key</th>
+        </tr>
+        <tr>
+            <td>
+                <input id="option-1" type="text" value="a">
+            </td>
+            <td>
+                <input id="option-2" type="text" value="href">
+            </td>
+        </tr>
+    </table>
+
+    <button id="button-1" type="button" style="width: 512px;">Get URLs</button>
+
+    <div class="line"></div>
+
+    <h4>URLs</h4>
+
+    <textarea id="input-2" style="width: 512px; height: 128px;"></textarea>
+
+    <br />
+
+    Delay:
+    <input id="delay-1" type="number" value="1024" style="margin-bottom: 4px;">
+    ms
+
+    <br />
+
+    <button id="button-2" type="button" style="width: 512px;">Open</button>
+
+    <script src="dist/html-parser.js"></script>
+    <script src="dist/open-urls.js"></script>
+    <script src="dist/query-object.js"></script>
+    <script>
+        document.getElementById("button-1").addEventListener("click", function(e) {
+            var str = document.getElementById("input-1").value;
+            var tagName = document.getElementById("option-1").value;
+            var propName = document.getElementById("option-2").value;
+
+            var html = new DOMParser();
+            var doc = html.parseFromString(str, "text/html");
+            var target = doc.querySelector("body").children[0];
+            var arr = htmlParser.parse(target);
+            var query = {};
+
+            if (!propName || propName === "") {
+                alert("Enter a property name (src, data-src...)");
+                return false;
+            }
+
+            if (tagName && tagName !== "") {
+                query.tagName = tagName;
+            }
+
+            var arr2 = arr.filter(function(elem) {
+                return queryObject.match(elem, query);
+            });
+
+            var arr3 = htmlParser.get(arr2, "attributes."+propName);
+
+            document.getElementById("input-2").innerHTML = arr3.join("\r\n");
+        });
+
+        document.getElementById("button-2").addEventListener("click", function(e) {
+            var arr = document.getElementById("input-2").value.split(/\r?\n/g);
+            openUrls.open(arr, parseInt(document.getElementById("delay-1").value));
+        });
+    </script>
+</body>
+
+</html>
